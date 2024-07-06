@@ -42,9 +42,9 @@ public class BoardService {
 	}
 
 	// 페이지 처리 
-	public Page<BoardResponse> pageBoard(Pageable pageable) throws Exception {
+	public Page<BoardResponse> pageBoard(String searchKey, Pageable pageable) throws Exception {
 		 
-		Page<BoardEntity> page = boardRepository.findAll(pageable);
+		Page<BoardEntity> page = boardRepository.findByTitleContaining(searchKey, pageable);
 		log.info("page : {}", page);
 		log.info("page.size : {}", page.getSize());
 		log.info("page.getNumber : {}", page.getNumber());

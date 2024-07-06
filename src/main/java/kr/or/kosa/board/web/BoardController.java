@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +26,14 @@ public class BoardController {
 	private BoardService boardService;
 
 	@GetMapping("/board/list.do")
-	public String list(Model model, Pageable pageable) throws Exception {
+	public String list(Model model, 
+			@RequestParam("searchKey") String searchKey, 
+			Pageable pageable) throws Exception {
 		log.info("pageable {}", pageable);
 
 		try {
 			long tick = System.nanoTime();
-			Page<BoardResponse> page = boardService.pageBoard(pageable);
+			Page<BoardResponse> page = boardService.pageBoard(searchKey, pageable);
 			PageNavigation<BoardResponse> pageNav = PageNavigation.<BoardResponse>withAll().page(page).build();
 
 			log.info("PageNavigation {}", pageNav);
