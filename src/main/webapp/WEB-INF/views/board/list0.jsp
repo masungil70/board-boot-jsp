@@ -25,23 +25,13 @@
    	<!-- layout Content -->
 		<div id="wrapper">
 			<div class="container">
-		    	<form action="/board/list.do" id="searchForm"  method="get">
+		    	<form action="/board/list.do" id="frm" method="get">
 				    <div class="col-md-12 mt-4">
 				    	<button type="button" class="btn btn-danger" onclick="fnDelete()">게시물삭제</button>
 				        <button type="button" class="btn btn-primary" onclick="javascript:location.href='/board/writeForm.do'">게시물등록</button>
 				        <div class="float-right">
 				        	<button type="button" class="btn btn-primary" onclick="javascript:location.href='/logout.do'">로그아웃</button>	
 				        </div>
-						<div>
-					        <select id="size" name="size" >
-					        	<c:forTokens var="size" items="10,20,30,50,100" delims=",">
-					        		<option value="${size}" ${size == page.numberOfElements ? 'selected' : ''} >${size}</option>
-					        	</c:forTokens>
-					        </select>
-					    	<label>제목</label>
-					    	<input type="text" id="searchKey" name="searchKey" value="${param.searchKey}">
-					    	<input type="submit" value="검색">
-						</div>				        
 				        <table class="table table-striped table-horizontal table-bordered mt-3">
 				            <thead class="thead-strong">
 				                <tr>
@@ -54,90 +44,35 @@
 				                </tr>
 				            </thead>
 				            <tbody id="tbody">
-				            	<c:choose>
-					            	<c:when test="${not empty page.content}">
-						            	<c:forEach var="item" items="${page.content}" varStatus="status">
-						            	<tr >
-											<td>
-												<input type="checkbox" name="deleteId" value="${item.id}">
-											</td>
-											<td>
-												<span>${status.count}</span>
-											</td>
-											<td>
-												<a href="<c:url value='/board/view.do?id=${item.id}'/>"><span>${item.title}</span></a>
-											</td>
-											<td>
-												<span>${item.register_id}</span>
-											</td>
-											<td>
-												<span>${item.read_cnt}</span>
-											</td>
-											<td>
-												<span>${item.register_time}</span>
-											</td>
-										<tr>
-						            	</c:forEach>
-						            </c:when>
-						            <c:otherwise>
-						            	<tr >
-											<td colspan="6">
-												자료가 존재하지 않습니다 
-											</td>
-										</tr>
-						            </c:otherwise>
-						        </c:choose>
-
-					            
+				            	<c:forEach var="item" items="${list}" varStatus="status">
+				            	<tr >
+									<td>
+										<input type="checkbox" name="deleteId" value="${item.id}">
+									</td>
+									<td>
+										<span>${status.count}</span>
+									</td>
+									<td>
+										<a href="<c:url value='/board/view.do?id=${item.id}'/>"><span>${item.title}</span></a>
+									</td>
+									<td>
+										<span>${item.register_id}</span>
+									</td>
+									<td>
+										<span>${item.read_cnt}</span>
+									</td>
+									<td>
+										<span>${item.register_time}</span>
+									</td>
+								<tr>
+				            	</c:forEach>
 				            </tbody>
 				        </table>
 				    </div>
-				    
-					<!--  페이지 네비게이션 바 출력  -->
-				    <div class="float-end">
-				        <ul class="pagination flex-wrap">
-				            <c:if test="${pageNav.prev}">
-				                <li class="page-item">
-				                    <a class="page-link" data-num="${pageNav.start - 1}">이전</a>
-				                </li>
-				            </c:if>
-				
-				            <c:forEach begin="${pageNav.start}" end="${pageNav.end}" var="num">
-				                <li class="page-item ${pageNav.className(num)} ">
-				                    <a class="page-link"  data-num="${num}">${num+1}</a></li>
-				            </c:forEach>
-				
-				            <c:if test="${pageNav.next}">
-				                <li class="page-item">
-				                    <a class="page-link"  data-num="${pageNav.end + 1}">다음</a>
-				                </li>
-				            </c:if>
-				        </ul>
-				    </div>			    
-				    
 			    </form>
 		    </div>
-		    
 	    </div>
-	    <script >
-	    	const searchForm = document.querySelector("#searchForm");
-	    	document.querySelector(".pagination").addEventListener("click", function (e) {
-		        e.preventDefault()
-	
-		        const target = e.target
-	
-		        if(target.tagName !== 'A') {
-		            return
-		        }
-		        //dataset 프로퍼티로 접근 또는 속성 접근 메서드 getAttribute() 사용 하여 접근 가능 
-		        //const num = target.getAttribute("data-num")
-		        const num = target.dataset["num"];
-		        
-		        //페이지번호 설정 
-		        searchForm.innerHTML += `<input type='hidden' name='page' value='\${num}'>`;
-		        searchForm.submit();
-		    });
-	    
+	    <script th:inline="javascript">
 	    	// header checkbox event
 	    	$("#chkAll").click(function() {
 	    		if (this.checked) {
@@ -164,7 +99,7 @@
 				
 				if (delInpChkLen > 0) {
 					if (confirm("삭제하시겠습니까?")) {
-						let frm = $("#searchForm");
+						let frm = $("#frm");
 						frm.attr("action","/board/deletes.do");
 						frm.attr("method","post");
 						frm.submit();

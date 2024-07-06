@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +22,47 @@ public class BoardService {
 	@Autowired
 	private BoardRepository boardRepository;
 
-	// 전체 목록
-	public List<BoardResponse> listBoard() throws Exception {
+	// 전체 목록  
+	public List<BoardResponse> listBoard(Pageable pageable) throws Exception {
+		 
+		Page<BoardEntity> page = boardRepository.findAll(pageable);
+		log.info("page : {}", page);
+		log.info("page.size : {}", page.getSize());
+		log.info("page.getNumber : {}", page.getNumber());
+		log.info("page.getNumberOfElements : {}", page.getNumberOfElements());
+		log.info("page.getTotalPages : {}", page.getTotalPages());
+		log.info("page.getTotalElements : {}", page.getTotalElements());
+
+		//Page의 목록 정보를 확인한다
+		List<BoardEntity> list = page.getContent();
+		log.info("page.getContent.size : {}", list.size());
+		log.info("page.getContent : {}", list);
+		
 		return boardRepository.findAll().stream().map(BoardResponse::of).collect(Collectors.toList());
+	}
+
+	// 페이지 처리 
+	public Page<BoardResponse> pageBoard(Pageable pageable) throws Exception {
+		 
+		Page<BoardEntity> page = boardRepository.findAll(pageable);
+		log.info("page : {}", page);
+		log.info("page.size : {}", page.getSize());
+		log.info("page.getNumber : {}", page.getNumber());
+		log.info("page.getNumberOfElements : {}", page.getNumberOfElements());
+		log.info("page.getTotalPages : {}", page.getTotalPages());
+		log.info("page.getTotalElements : {}", page.getTotalElements());
+
+		Pageable prevPage = page.previousPageable();
+		Pageable nextPage = page.nextPageable();
+		log.info("prevPage : {}", prevPage);
+		log.info("nextPage : {}", nextPage);
+		
+		//Page의 목록 정보를 확인한다
+		List<BoardEntity> list = page.getContent();
+		log.info("page.getContent.size : {}", list.size());
+		log.info("page.getContent : {}", list);
+		
+		return page.map(BoardResponse::of);
 	}
 
 	@Transactional

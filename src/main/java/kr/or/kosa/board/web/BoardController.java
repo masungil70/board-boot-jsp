@@ -3,12 +3,17 @@ package kr.or.kosa.board.web;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import kr.or.kosa.board.domain.PageNavigation;
 import kr.or.kosa.board.service.BoardService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +25,18 @@ public class BoardController {
 	private BoardService boardService;
 
 	@GetMapping("/board/list.do")
-	public String list(Model model) throws Exception {
+	public String list(Model model, Pageable pageable) throws Exception {
+		log.info("pageable {}", pageable);
 
 		try {
 			long tick = System.nanoTime();
-			model.addAttribute("list", boardService.listBoard());
+			Page<BoardResponse> page = boardService.pageBoard(pageable);
+			PageNavigation<BoardResponse> pageNav = PageNavigation.<BoardResponse>withAll().page(page).build();
+
+			log.info("PageNavigation {}", pageNav);
+			
+			model.addAttribute("page", page);
+			model.addAttribute("pageNav", pageNav);
 			tick = System.nanoTime() - tick;
 			log.info("실행 시간 {}", tick);
 		} catch (Exception e) {
